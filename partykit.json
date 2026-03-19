@@ -1,0 +1,6 @@
+{
+  "$schema": "https://www.partykit.io/schema.json",
+  "name": "sprint-poker",
+  "main": "party/index.ts",
+  "compatibilityDate": "2023-09-30"
+}
