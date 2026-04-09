@@ -1,0 +1,51 @@
+---
+# Thin caller — logic lives in LocumTenens-com/ltx merge-on-green-reusable.yml.
+name: Merge on Green
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review:
+    types: [submitted]
+  pull_request:
+    types: [labeled]
+
+concurrency:
+  group: auto-merge-${{ github.event.issue.number || github.event.pull_request.number || github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  queue-merge:
+    name: Queue for Merge
+    if: |
+      (
+        github.event_name == 'issue_comment' &&
+        github.event.issue.pull_request &&
+        contains(fromJSON('["LGTM","lgtm","Lgtm"]'), trim(github.event.comment.body))
+      ) ||
+      (
+        github.event_name == 'pull_request_review' &&
+        github.event.review.state == 'approved' &&
+        contains(github.event.review.body || '', 'LGTM')
+      )
+    uses: LocumTenens-com/ltx/.github/workflows/merge-on-green-reusable.yml@main
+    with:
+      pr-number: ${{ github.event.issue.number || github.event.pull_request.number }}
+      event-type: ${{ github.event_name == 'issue_comment' && 'comment' || 'review' }}
+      commenter: ${{ github.event.comment.user.login || github.event.review.user.login }}
+    secrets:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+  auto-merge:
+    name: Auto Merge on Green
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.action == 'labeled' &&
+      github.event.label.name == 'automerge'
+    uses: LocumTenens-com/ltx/.github/workflows/merge-on-green-reusable.yml@main
+    with:
+      pr-number: ${{ github.event.pull_request.number }}
+      event-type: labeled
+      commenter: ${{ github.event.sender.login }}
+    secrets:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
