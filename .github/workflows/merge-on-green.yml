@@ -14,6 +14,11 @@ concurrency:
   group: auto-merge-${{ github.event.issue.number || github.event.pull_request.number || github.sha }}
   cancel-in-progress: false
 
+permissions:
+  checks: read
+  contents: write
+  pull-requests: write
+  statuses: read
 jobs:
   queue-merge:
     name: Queue for Merge
