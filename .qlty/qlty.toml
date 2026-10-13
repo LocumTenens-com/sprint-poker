@@ -1,0 +1,39 @@
+# Qlty Cloud analysis config (runs through the qlty GitHub App, not in CI).
+config_version = "0"
+
+exclude_patterns = [
+  "**/node_modules/**",
+  "**/vendor/**",
+  "**/dist/**",
+  "**/build/**",
+  "**/generated/**",
+]
+
+test_patterns = [
+  "**/test/**",
+  "**/tests/**",
+  "**/*.test.*",
+  "**/*.spec.*",
+  "**/*_test.*",
+  "**/test_*.*",
+]
+
+[smells]
+mode = "comment"
+
+[[source]]
+name = "default"
+default = true
+
+[[plugin]]
+name = "osv-scanner"
+mode = "comment"
+
+[[plugin]]
+name = "trivy"
+mode = "comment"
+drivers = ["fs-vuln"]
+
+[[plugin]]
+name = "trufflehog"
+mode = "comment"
